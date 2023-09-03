@@ -28,9 +28,10 @@ const App = () => {
 
         {/* Main Content */}
         <Routes>
-          <Route path="/login" component={Login} />
-          <Route path="/post-form" component={PostForm} />
-          <Route path="/" exact component={PostList} />
+          {/* <Route path="/login" component={Login} /> */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/post-form" element={<PostForm />} />
+          <Route path="/" element={<PostList />} />
         </Routes>
       </div>
     </Router>

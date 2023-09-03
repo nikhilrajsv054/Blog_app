@@ -1,6 +1,11 @@
 // postsSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
+const initialState = {
+    posts: [], // Initial state with an empty array
+};
+
+
 const postsSlice = createSlice({
   name: 'posts',
   initialState: [],
@@ -25,5 +30,5 @@ const postsSlice = createSlice({
 });
 
 export const { addPost, likePost, commentPost } = postsSlice.actions;
-export const selectPosts = (state) => state.posts;
+export const selectPosts = (state) => state.posts.posts;
 export default postsSlice.reducer;
