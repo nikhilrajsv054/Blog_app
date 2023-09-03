@@ -1,0 +1,66 @@
+/* PostList.module.css */
+.post-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.post {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  padding: 20px;
+  margin: 10px;
+  border-radius: 5px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.post h3 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.post p {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.post .likes {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.post .actions {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.post .comment-input {
+  flex-grow: 1;
+  margin-right: 10px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.post .comment-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.post .comment-list {
+  list-style: none;
+  padding: 0;
+}
+
+.post .comment-item {
+  font-size: 14px;
+  margin-top: 5px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
