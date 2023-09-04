@@ -77,3 +77,35 @@ const Login = () => {
 };
 
 export default Login;
+
+// // Login.js
+// import React from 'react';
+// import { useDispatch } from 'react-redux';
+// import { login } from '../store/Slices/authSlice';
+// import { useHistory } from 'react-router-dom'; // Import useHistory
+// import styles from '../Styles/Login.module.css';
+
+// const Login = () => {
+//   const dispatch = useDispatch();
+//   const history = useHistory(); // Initialize the useHistory hook
+
+//   const handleLogin = () => {
+//     // Perform authentication logic here
+
+//     // If the user is authenticated as an admin, dispatch the login action
+//     dispatch(login());
+
+//     // Redirect to the PostList page after successful login
+//     history.push('/'); // Use history.push to navigate to the desired route
+//   };
+
+//   return (
+//     <div className={styles['login-container']}>
+//       <h2>Login</h2>
+//       <button onClick={handleLogin}>Login as Admin</button>
+//     </div>
+//   );
+// };
+
+// export default Login;
+

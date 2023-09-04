@@ -16,6 +16,13 @@ const postsSlice = createSlice({
         post.content = content;
       }
     },
+    // editPost: (state, action) => {
+    //   const { id, content } = action.payload;
+    //   const postToEdit = state.find((post) => post.id === id);
+    //   if (postToEdit) {
+    //     postToEdit.content = content;
+    //   }
+    // },
   },
 });
 
