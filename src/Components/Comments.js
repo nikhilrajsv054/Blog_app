@@ -1,3 +1,48 @@
+
+
+/* PostList.module.css */
+
+/* Existing styles */
+
+/* Add styles for the comment section */
+.comment-section {
+  margin-top: 16px;
+}
+
+.comment-form {
+  display: flex;
+  margin-top: 8px;
+}
+
+.comment-form input {
+  flex-grow: 1;
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 4px;
+}
+
+.comment-form button {
+  padding: 4px 8px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.comment-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.comment-item {
+  background-color: #f0f0f0;
+  padding: 8px;
+  margin-top: 8px;
+  border-radius: 4px;
+}
 // PostList.js
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
