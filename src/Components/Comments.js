@@ -1,4 +1,21 @@
 
+
+
+{selectedPost === post.id && (
+                  <ul className={styles['comment-list']}>
+                    {post.comments.map((comment, index) => (
+
+
+
+                      {selectedPost === post.id && (
+                  <ul className={styles['comment-list']}>
+                    {post.comments.map((comment, index) => (
+                      <li key={index}>{comment}</li>
+                    ))}
+                  </ul>
+                )}
+              
+
 // PostList.js
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
