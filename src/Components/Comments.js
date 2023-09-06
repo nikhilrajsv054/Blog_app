@@ -1,4 +1,59 @@
+/* FullPost.module.css */
 
+.full-post {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.full-post h2 {
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.full-post p {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Add more styles as needed */
+
+<Route path="/full-post/:postId" component={FullPost} />
+
+<div className={styles['action-item']}>
+                {selectedPost === post.id ? (
+                  // ... Comment form and comments listing ...
+                ) : (
+                  <>
+                    <Link to={`/full-post/${post.id}`} className={styles['read-more']}>
+                      Read more
+                    </Link>
+                  </>
+                )}
+              </div>
+
+
+// FullPost.js
+
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { selectPosts } from '../store/Slices/postsSlice';
+import { useParams } from 'react-router-dom';
+
+const FullPost = () => {
+  const { postId } = useParams();
+  const posts = useSelector(selectPosts);
+  const post = posts.find((p) => p.id === postId);
+
+  return (
+    <div>
+      <h2>{post.title}</h2>
+      <p>{post.content}</p>
+    </div>
+  );
+};
+
+export default FullPost;
 
 /* PostList.module.css */
 
