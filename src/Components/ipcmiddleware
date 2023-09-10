@@ -1,0 +1,28 @@
+// ipcMiddleware.js
+const { ipcRenderer } = window.require('electron');
+const fs = window.require('fs-extra');
+
+export const ipcMiddleware = (store) => (next) => (action) => {
+  switch (action.type) {
+    case 'posts/addPost': {
+      // Send an IPC request to add the post data
+      ipcRenderer.invoke('addPost', action.payload).then((response) => {
+        // Dispatch a Redux action with the response data
+        store.dispatch({ type: 'posts/addPostSuccess', payload: response });
+      });
+      break;
+    }
+    case 'posts/editPost': {
+      // Send an IPC request to edit the post data
+      ipcRenderer.invoke('editPost', action.payload).then((response) => {
+        // Dispatch a Redux action with the response data
+        store.dispatch({ type: 'posts/editPostSuccess', payload: response });
+      });
+      break;
+    }
+    default:
+      return next(action);
+  }
+};
+
+export default ipcMiddleware;
