@@ -1,46 +1,99 @@
-import configuretheme from './configuretheme';
-import * as date from './date';
+import Themes from '../index'; // Adjust the path as needed
+import { configureTheme, getThemes } from '../index'; // Adjust the path as needed
 
-// Mock the getThemes function
-jest.mock('./date', () => ({
-  getThemes: jest.fn(),
-}));
-
-describe('configuretheme function', () => {
-  afterEach(() => {
-    // Clear mock calls after each test
-    jest.clearAllMocks();
+describe('configureTheme', () => {
+  it('should return standby theme', () => {
+    const theme = {
+      colors: ['col1', 'col2', 'col3', 'col4'],
+      fontFamily: 'Arial',
+    };
+    const result = configureTheme('standby', theme);
+    expect(result).toEqual({
+      fontFamily: 'Arial',
+      color: 'col3',
+    });
   });
 
-  it('should call date.getThemes with the correct arguments for DateTime type', () => {
-    // Arrange
-    const theme = { /* your theme object here */ };
-    const instance = { type: 'DateTime' };
+  it('should return default theme', () => {
+    const theme = {
+      colors: ['col1', 'col2', 'col3', 'col4'],
+      fontFamily: 'Arial',
+    };
+    const result = configureTheme('otherType', theme);
+    expect(result).toEqual({
+      fontFamily: 'Arial',
+      color: 'col4',
+    });
+  });
+});
 
-    // Act
-    configuretheme.call(instance, theme);
+describe('getThemes', () => {
+  it('should apply a specified theme', () => {
+    const dateElement = {
+      style: {},
+    };
+    const timeElement = {
+      style: {},
+    };
+    const classnames = ['standby'];
+    const themeToBeApply = 'customTheme';
+    const customTheme = {
+      colors: ['customCol1', 'customCol2', 'customCol3', 'customCol4'],
+      fontFamily: 'Verdana',
+      borderRadius: '5px',
+    };
 
-    // Assert
-    expect(date.getThemes).toHaveBeenCalledWith(theme);
+    Themes.allThemes.customTheme = customTheme;
+
+    getThemes.call(
+      {
+        classnames,
+        date: dateElement,
+        time: timeElement,
+        style: {},
+      },
+      themeToBeApply
+    );
+
+    expect(dateElement.style).toEqual({
+      fontFamily: 'Verdana',
+      color: 'customCol3',
+    });
+
+    expect(timeElement.style).toEqual({
+      fontFamily: 'Verdana',
+      color: 'customCol3',
+    });
   });
 
-  it('should log a message for unknown type', () => {
-    // Arrange
-    const theme = { /* your theme object here */ };
-    const instance = { type: 'UnknownType' };
-    
-    // Mock the console.log function
-    const consoleLogMock = jest.spyOn(console, 'log').mockImplementation(() => {});
+  it('should apply the default theme if no theme is specified', () => {
+    const dateElement = {
+      style: {},
+    };
+    const timeElement = {
+      style: {},
+    };
+    const classnames = ['standby'];
 
-    // Act
-    configuretheme.call(instance, theme);
+    getThemes.call(
+      {
+        classnames,
+        date: dateElement,
+        time: timeElement,
+        style: {},
+      },
+      null
+    );
 
-    // Assert
-    expect(date.getThemes).not.toHaveBeenCalled(); // Ensure getThemes is not called
-    expect(consoleLogMock).toHaveBeenCalledWith(`no theme ${instance.type}`);
+    expect(dateElement.style).toEqual({
+      fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
+      color: 'col3',
+    });
 
-    // Restore the original console.log function
-    consoleLogMock.mockRestore();
+    expect(timeElement.style).toEqual({
+      fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
+      color: 'col3',
+    });
   });
 });
 
