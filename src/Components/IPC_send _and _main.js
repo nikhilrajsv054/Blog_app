@@ -1,103 +1,106 @@
-// PostForm.js
-import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { addPost, editPost, selectIsAdmin } from '../store/Slices/authSlice';
-import styles from '../Styles/PostForm.module.css';
-const { ipcRenderer } = window.require('electron');
-
-const PostForm = ({ postToEdit }) => {
-  // ...
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (isAdmin) {
-      if (postToEdit) {
-        // Edit existing post
-        dispatch(editPost({ id: postToEdit.id, title, content }));
-        ipcRenderer.send('editPost', { id: postToEdit.id, title, content });
-      } else {
-        // Create a new post
-        dispatch(addPost({ title, content }));
-        ipcRenderer.send('addPost', { title, content });
-      }
-    }
-  };
-
-  // ...
-};
-
-export default PostForm;
-
-
-----------------------------------------
-
-// main.js (Electron main process)
-const { app, BrowserWindow, ipcMain } = require('electron');
-const fs = require('fs-extra');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const fs = require('fs');
 const path = require('path');
 
-// ...
+let mainWindow;
 
-// Handle IPC requests to add a new post
-ipcMain.on('addPost', async (event, newPost) => {
-  try {
-    // Read the existing JSON data file
-    const jsonData = await fs.readJson('data.json');
+function createWindow() {
+  mainWindow = new BrowserWindow({ width: 800, height: 600 });
+  mainWindow.loadFile('index.html');
 
-    // Generate a unique ID for the new post (you can use a library like `uuid`)
-    newPost.id = Date.now();
+  // Open DevTools (only in development mode)
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.webContents.openDevTools();
+  }
 
-    // Add the new post to the JSON data
-    jsonData.push(newPost);
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
+}
 
-    // Write the updated JSON data back to the file
-    await fs.writeJson('data.json', jsonData);
+app.on('ready', createWindow);
 
-    // Send a response back to the renderer process if needed
-    event.reply('addPostResponse', newPost);
-  } catch (error) {
-    console.error('Error adding post:', error);
-    // Handle the error and send an error response if needed
-    event.reply('addPostResponse', { error: error.message });
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
   }
 });
 
-// Handle IPC requests to edit an existing post
-ipcMain.on('editPost', async (event, editedPost) => {
+app.on('activate', () => {
+  if (mainWindow === null) {
+    createWindow();
+  }
+});
+
+ipcMain.on('file-upload', async (event, filePath) => {
   try {
-    // Read the existing JSON data file
-    const jsonData = await fs.readJson('data.json');
+    // Open a dialog to specify the destination directory for the uploaded file
+    const { filePath: savePath } = await dialog.showSaveDialog(mainWindow, {
+      defaultPath: `uploaded_${Date.now()}.jpg`,
+    });
 
-    // Find the index of the post to edit by its ID
-    const postIndex = jsonData.findIndex((post) => post.id === editedPost.id);
-
-    if (postIndex !== -1) {
-      // Update the post's title and content
-      jsonData[postIndex].title = editedPost.title;
-      jsonData[postIndex].content = editedPost.content;
-
-      // Write the updated JSON data back to the file
-      await fs.writeJson('data.json', jsonData);
-
-      // Send a response back to the renderer process if needed
-      event.reply('editPostResponse', editedPost);
-    } else {
-      throw new Error('Post not found');
+    if (!savePath) {
+      event.reply('file-upload-error', 'Save dialog canceled by user');
+      return;
     }
+
+    // Copy the file to the specified destination
+    fs.copyFile(filePath, savePath, (err) => {
+      if (err) {
+        event.reply('file-upload-error', err.message);
+      } else {
+        event.reply('file-upload-success', savePath);
+      }
+    });
   } catch (error) {
-    console.error('Error editing post:', error);
-    // Handle the error and send an error response if needed
-    event.reply('editPostResponse', { error: error.message });
+    event.reply('file-upload-error', error.message);
   }
 });
 
-// ...
 
-// Create the main window
-app.on('ready', () => {
-  // ...
-});
+import React, { useState, useEffect } from 'react';
+const { ipcRenderer } = window.require('electron');
+
+function ImageUpload() {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState(null);
+
+  const handleFileChange = (event) => {
+    const filePath = event.target.files[0].path;
+    setSelectedFile(filePath);
+
+    ipcRenderer.send('file-upload', filePath);
+  };
+
+  useEffect(() => {
+    ipcRenderer.on('file-upload-success', (event, filePath) => {
+      setUploadStatus(`File uploaded successfully: ${filePath}`);
+    });
+
+    ipcRenderer.on('file-upload-error', (event, errorMessage) => {
+      setUploadStatus(`File upload error: ${errorMessage}`);
+    });
+
+    return () => {
+      ipcRenderer.removeAllListeners('file-upload-success');
+      ipcRenderer.removeAllListeners('file-upload-error');
+    };
+  }, []);
+
+  return (
+    <div>
+      <input type="file" accept="image/*" onChange={handleFileChange} />
+      {selectedFile && <img src={selectedFile} alt="Selected" />}
+      {uploadStatus && <p>{uploadStatus}</p>}
+    </div>
+  );
+}
+
+export default ImageUpload;
 
 
-
+<script>
+  if (window.require) {
+    window.require = null;
+  }
+</script>
