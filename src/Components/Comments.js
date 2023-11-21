@@ -90,3 +90,43 @@ const Shapes = () => {
 };
 
 export default Shapes;
+
+.navbar {
+  padding: 10px;
+  background-color: #f0f0f0;
+}
+
+.navbar button {
+  margin: 5px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.canvas {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  border: 1px solid #ccc;
+  overflow: hidden;
+  cursor: crosshair; /* Add this line to set the default cursor to crosshair */
+}
+
+.shape {
+  position: absolute;
+  cursor: pointer;
+}
+
+.circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: black solid;
+}
+
+.rectangle {
+  width: 100px;
+  height: 60px;
+  /* background-color: blue; */
+  border: black solid;
+}
+
