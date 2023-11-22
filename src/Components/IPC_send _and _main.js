@@ -1,106 +1,80 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
-const fs = require('fs');
-const path = require('path');
+import React, { useRef, useState } from 'react';
+import { Stage, Layer, Rect } from 'react-konva';
 
-let mainWindow;
+const Rectangle = () => {
+  const stageRef = useRef();
+  const [rectangles, setRectangles] = useState([]);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
 
-function createWindow() {
-  mainWindow = new BrowserWindow({ width: 800, height: 600 });
-  mainWindow.loadFile('index.html');
-
-  // Open DevTools (only in development mode)
-  if (process.env.NODE_ENV === 'development') {
-    mainWindow.webContents.openDevTools();
-  }
-
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
-}
-
-app.on('ready', createWindow);
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-app.on('activate', () => {
-  if (mainWindow === null) {
-    createWindow();
-  }
-});
-
-ipcMain.on('file-upload', async (event, filePath) => {
-  try {
-    // Open a dialog to specify the destination directory for the uploaded file
-    const { filePath: savePath } = await dialog.showSaveDialog(mainWindow, {
-      defaultPath: `uploaded_${Date.now()}.jpg`,
-    });
-
-    if (!savePath) {
-      event.reply('file-upload-error', 'Save dialog canceled by user');
-      return;
+  const handleMouseDown = (e) => {
+    if (!isDrawing) {
+      const { x, y } = e.target.getStage().getPointerPosition();
+      setStartPosition({ x, y });
+      setIsDrawing(true);
+      setRectangles([
+        ...rectangles,
+        {
+          x,
+          y,
+          width: 0,
+          height: 0,
+        },
+      ]);
     }
-
-    // Copy the file to the specified destination
-    fs.copyFile(filePath, savePath, (err) => {
-      if (err) {
-        event.reply('file-upload-error', err.message);
-      } else {
-        event.reply('file-upload-success', savePath);
-      }
-    });
-  } catch (error) {
-    event.reply('file-upload-error', error.message);
-  }
-});
-
-
-import React, { useState, useEffect } from 'react';
-const { ipcRenderer } = window.require('electron');
-
-function ImageUpload() {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [uploadStatus, setUploadStatus] = useState(null);
-
-  const handleFileChange = (event) => {
-    const filePath = event.target.files[0].path;
-    setSelectedFile(filePath);
-
-    ipcRenderer.send('file-upload', filePath);
   };
 
-  useEffect(() => {
-    ipcRenderer.on('file-upload-success', (event, filePath) => {
-      setUploadStatus(`File uploaded successfully: ${filePath}`);
-    });
+  const handleMouseMove = (e) => {
+    if (!isDrawing) return;
 
-    ipcRenderer.on('file-upload-error', (event, errorMessage) => {
-      setUploadStatus(`File upload error: ${errorMessage}`);
-    });
-
-    return () => {
-      ipcRenderer.removeAllListeners('file-upload-success');
-      ipcRenderer.removeAllListeners('file-upload-error');
+    const { x, y } = e.target.getStage().getPointerPosition();
+    const updatedRectangles = rectangles.slice();
+    const lastIndex = updatedRectangles.length - 1;
+    updatedRectangles[lastIndex] = {
+      ...updatedRectangles[lastIndex],
+      width: x - startPosition.x,
+      height: y - startPosition.y,
     };
-  }, []);
+    setRectangles(updatedRectangles);
+  };
+
+  const handleMouseUp = () => {
+    setIsDrawing(false);
+  };
+
+  const handleCreateRectangles = () => {
+    setIsDrawing(true);
+  };
 
   return (
     <div>
-      <input type="file" accept="image/*" onChange={handleFileChange} />
-      {selectedFile && <img src={selectedFile} alt="Selected" />}
-      {uploadStatus && <p>{uploadStatus}</p>}
+      <button onClick={handleCreateRectangles}>Create Rectangle</button>
+      <Stage
+        width={window.innerWidth}
+        height={window.innerHeight}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        ref={stageRef}
+        style={{ cursor: isDrawing ? 'crosshair' : 'default' }}
+      >
+        <Layer>
+          {rectangles.map((rect, index) => (
+            <Rect
+              key={index}
+              x={rect.x}
+              y={rect.y}
+              width={rect.width}
+              height={rect.height}
+              stroke="black"
+            />
+          ))}
+        </Layer>
+      </Stage>
     </div>
   );
-}
+};
 
-export default ImageUpload;
+export default Rectangle;
 
 
-<script>
-  if (window.require) {
-    window.require = null;
-  }
-</script>
